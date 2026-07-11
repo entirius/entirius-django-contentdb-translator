@@ -1,6 +1,6 @@
 [project]
 name = "entirius-django-contentdb-translator"
-version = "2.0.0"
+version = "2.0.1"
 description = "ContentDB AI translation — clones drafts with translated content via AI toolbox"
 authors = [{ name = "Entirius" }]
 readme = "README.md"
