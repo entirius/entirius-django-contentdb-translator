@@ -1,0 +1,68 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+
+{% block content %}
+<style>
+  .result-summary { max-width: 720px; }
+  .result-summary .success-banner { background: #dff0d8; border: 1px solid #d0e9c6; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; color: #3c763d; }
+  .result-summary table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .result-summary th, .result-summary td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+  .result-summary th { background: #f8f8f8; font-weight: bold; }
+  .result-summary code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+</style>
+
+<div class="result-summary">
+
+  <div class="success-banner">
+    Translation jobs created successfully. Content will be translated asynchronously via Celery.
+  </div>
+
+  <h3>Configuration</h3>
+  <table>
+    <tr><th>Channel</th><td>{{ config.channel }}</td></tr>
+    <tr><th>Source</th><td>{{ config.source_language }}</td></tr>
+    <tr><th>Targets</th><td>{{ config.target_languages|join:", " }}</td></tr>
+    <tr>
+      <th>Scope</th>
+      <td>
+        {% if config.scope == "all" %}All {{ config.entity_type }}s
+        {% elif config.scope == "content_type" %}{{ config.entity_type }}s of type "{{ config.content_type_slug }}"
+        {% else %}Single draft: {{ config.draft_uid }}
+        {% endif %}
+      </td>
+    </tr>
+    {% if config.force %}<tr><th>Force</th><td>Yes</td></tr>{% endif %}
+    {% if config.publish %}<tr><th>Auto-publish</th><td>Yes</td></tr>{% endif %}
+  </table>
+
+  {% if result.job_ids %}
+  <h3>Translation jobs ({{ result.job_ids|length }})</h3>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Job ID</th></tr>
+    </thead>
+    <tbody>
+      {% for job_id in result.job_ids %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><code>{{ job_id }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if result.estimated_cost_usd %}
+  <p style="margin-top: 12px;">Estimated cost: <strong>${{ result.estimated_cost_usd }}</strong></p>
+  {% endif %}
+
+  <div class="submit-row" style="margin-top: 24px;">
+    <a href="{% url 'admin:contentdb_translate_step1' %}" class="button default">Translate more content</a>
+    <a href="{% url 'admin:django_contentdb_translator_translationlink_changelist' %}" class="button" style="margin-left: 8px;">View translation links</a>
+  </div>
+
+</div>
+{% endblock %}

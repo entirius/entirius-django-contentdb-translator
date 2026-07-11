@@ -1,0 +1,135 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+
+{% block content %}
+<style>
+  .wizard-form { max-width: 720px; }
+  .wizard-form fieldset { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+  .wizard-form legend { font-weight: bold; padding: 0 8px; }
+  .wizard-form .form-row { margin-bottom: 12px; }
+  .wizard-form label { display: block; font-weight: bold; margin-bottom: 4px; }
+  .wizard-form .helptext { color: #666; font-size: 0.85em; margin-top: 2px; }
+  .wizard-form select, .wizard-form input[type="text"] { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 3px; }
+  .wizard-form .checkbox-list label { display: inline; font-weight: normal; margin-right: 12px; }
+  .wizard-form .radio-list label { display: inline; font-weight: normal; margin-right: 16px; }
+  .wizard-form .errorlist { color: #ba2121; list-style: none; padding: 0; margin: 4px 0 0; }
+  .scope-dependent { display: none; }
+  .scope-dependent.visible { display: block; }
+</style>
+
+<form method="post" class="wizard-form">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="errornote">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <fieldset>
+    <legend>Channel & Languages</legend>
+
+    <div class="form-row">
+      {{ form.channel.label_tag }}
+      {{ form.channel }}
+      {% if form.channel.errors %}<ul class="errorlist">{% for e in form.channel.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <p class="helptext">{{ form.channel.help_text }}</p>
+    </div>
+
+    <div class="form-row">
+      {{ form.source_language.label_tag }}
+      {{ form.source_language }}
+      {% if form.source_language.errors %}<ul class="errorlist">{% for e in form.source_language.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <p class="helptext">{{ form.source_language.help_text }}</p>
+    </div>
+
+    <div class="form-row">
+      {{ form.target_languages.label_tag }}
+      <div class="checkbox-list">{{ form.target_languages }}</div>
+      {% if form.target_languages.errors %}<ul class="errorlist">{% for e in form.target_languages.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <p class="helptext">{{ form.target_languages.help_text }}</p>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Scope</legend>
+
+    <div class="form-row">
+      <div class="radio-list">{{ form.scope }}</div>
+      {% if form.scope.errors %}<ul class="errorlist">{% for e in form.scope.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    </div>
+
+    <div class="form-row scope-dependent" id="field-entity-type">
+      {{ form.entity_type.label_tag }}
+      {{ form.entity_type }}
+      {% if form.entity_type.errors %}<ul class="errorlist">{% for e in form.entity_type.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <p class="helptext">{{ form.entity_type.help_text }}</p>
+    </div>
+
+    <div class="form-row scope-dependent" id="field-content-type">
+      {{ form.content_type_slug.label_tag }}
+      {{ form.content_type_slug }}
+      {% if form.content_type_slug.errors %}<ul class="errorlist">{% for e in form.content_type_slug.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <p class="helptext">{{ form.content_type_slug.help_text }}</p>
+    </div>
+
+    <div class="form-row scope-dependent" id="field-draft-uid">
+      {{ form.draft_uid.label_tag }}
+      {{ form.draft_uid }}
+      {% if form.draft_uid.errors %}<ul class="errorlist">{% for e in form.draft_uid.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      <p class="helptext">{{ form.draft_uid.help_text }}</p>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Options</legend>
+
+    <div class="form-row">
+      {{ form.force }} {{ form.force.label_tag }}
+      <p class="helptext">{{ form.force.help_text }}</p>
+    </div>
+
+    <div class="form-row">
+      {{ form.publish }} {{ form.publish.label_tag }}
+      <p class="helptext">{{ form.publish.help_text }}</p>
+    </div>
+
+    <div class="form-row">
+      {{ form.provider.label_tag }}
+      {{ form.provider }}
+      <p class="helptext">{{ form.provider.help_text }}</p>
+    </div>
+  </fieldset>
+
+  <div class="submit-row">
+    <input type="submit" value="Get estimate" class="default" />
+  </div>
+</form>
+
+<script>
+(function() {
+  var scopeInputs = document.querySelectorAll('input[name="scope"]');
+  var entityTypeField = document.getElementById('field-entity-type');
+  var contentTypeField = document.getElementById('field-content-type');
+  var draftUidField = document.getElementById('field-draft-uid');
+
+  function updateVisibility() {
+    var selected = document.querySelector('input[name="scope"]:checked');
+    if (!selected) return;
+    var val = selected.value;
+
+    entityTypeField.className = 'form-row scope-dependent' + (val === 'all' || val === 'content_type' ? ' visible' : '');
+    contentTypeField.className = 'form-row scope-dependent' + (val === 'content_type' ? ' visible' : '');
+    draftUidField.className = 'form-row scope-dependent' + (val === 'single' ? ' visible' : '');
+  }
+
+  for (var i = 0; i < scopeInputs.length; i++) {
+    scopeInputs[i].addEventListener('change', updateVisibility);
+  }
+  updateVisibility();
+})();
+</script>
+{% endblock %}

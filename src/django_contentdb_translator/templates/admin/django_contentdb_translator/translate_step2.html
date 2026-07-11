@@ -1,0 +1,117 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+
+{% block content %}
+<style>
+  .estimate-summary { max-width: 720px; margin-bottom: 24px; }
+  .estimate-summary table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .estimate-summary th, .estimate-summary td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+  .estimate-summary th { background: #f8f8f8; font-weight: bold; }
+  .estimate-summary .total-row td { font-weight: bold; background: #f0f0f0; }
+  .config-summary { background: #f8f9fa; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; }
+  .config-summary dt { font-weight: bold; float: left; width: 160px; }
+  .config-summary dd { margin-left: 170px; margin-bottom: 6px; }
+  .draft-table { max-height: 400px; overflow-y: auto; }
+</style>
+
+<div class="estimate-summary">
+
+  <div class="config-summary">
+    <h3>Configuration</h3>
+    <dl>
+      <dt>Channel:</dt><dd>{{ config.channel }}</dd>
+      <dt>Source language:</dt><dd>{{ config.source_language }}</dd>
+      <dt>Target languages:</dt><dd>{{ config.target_languages|join:", " }}</dd>
+      <dt>Scope:</dt>
+      <dd>
+        {% if config.scope == "all" %}All {{ config.entity_type }}s
+        {% elif config.scope == "content_type" %}{{ config.entity_type }}s of type "{{ config.content_type_slug }}"
+        {% else %}Single draft: {{ config.draft_uid }}
+        {% endif %}
+      </dd>
+      {% if config.force %}<dt>Force:</dt><dd>Yes (overwrite existing)</dd>{% endif %}
+      {% if config.publish %}<dt>Auto-publish:</dt><dd>Yes</dd>{% endif %}
+    </dl>
+  </div>
+
+  {% if estimate.per_language %}
+  <h3>Cost estimate per language</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Language</th>
+        <th>Items</th>
+        <th>Characters</th>
+        <th>Cost (USD)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lang in estimate.per_language %}
+      <tr>
+        <td>{{ lang.language }}</td>
+        <td>{{ lang.items }}</td>
+        <td>{{ lang.chars }}</td>
+        <td>{% if lang.cost_usd %}${{ lang.cost_usd }}{% else %}-{% endif %}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td>Total</td>
+        <td>{{ estimate.estimated_items|default:estimate.items }}</td>
+        <td>{{ estimate.total_chars }}</td>
+        <td>{% if estimate.estimated_cost_usd %}${{ estimate.estimated_cost_usd }}{% else %}-{% endif %}</td>
+      </tr>
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if estimate.skipped_drafts %}
+  <p style="margin-top: 12px; color: #666;">
+    <strong>{{ estimate.skipped_drafts }}</strong> draft(s) skipped (already translated, use Force to re-translate).
+  </p>
+  {% endif %}
+
+  {% if estimate.per_draft %}
+  <h3>Per-draft breakdown</h3>
+  <div class="draft-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Draft</th>
+          <th>UID</th>
+          <th>Items</th>
+          <th>Characters</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for draft in estimate.per_draft %}
+        <tr>
+          <td>{{ draft.draft_name }}</td>
+          <td><code>{{ draft.draft_uid }}</code></td>
+          <td>{{ draft.items }}</td>
+          <td>{{ draft.chars }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if estimate.existing_translations %}
+  <p style="margin-top: 12px; color: #666;">
+    Existing translations: {{ estimate.existing_translations|join:", " }}
+  </p>
+  {% endif %}
+
+  <div class="submit-row" style="margin-top: 24px;">
+    <form method="post" action="{% url 'admin:contentdb_translate_step3' %}" style="display: inline;">
+      {% csrf_token %}
+      <input type="submit" value="Confirm and translate" class="default" />
+    </form>
+    <a href="{% url 'admin:contentdb_translate_step1' %}" class="button" style="margin-left: 8px;">Back to configuration</a>
+  </div>
+
+</div>
+{% endblock %}

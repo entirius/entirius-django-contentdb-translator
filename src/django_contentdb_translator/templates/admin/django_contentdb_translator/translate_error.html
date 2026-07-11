@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px;">
+  <div style="background: #f2dede; border: 1px solid #ebccd1; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; color: #a94442;">
+    <strong>Error:</strong> {{ error }}
+  </div>
+
+  <div class="submit-row">
+    <a href="{% url 'admin:contentdb_translate_step1' %}" class="button default">Back to configuration</a>
+  </div>
+</div>
+{% endblock %}
