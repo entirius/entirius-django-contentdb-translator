@@ -82,7 +82,7 @@ AI_TOOLBOX_MAX_RETRIES = 3                        # optional (default: 3)
 
 `AI_TOOLBOX_BASE_URL` and `AI_TOOLBOX_API_KEY` are required — the module fails loud if either is missing.
 
-See [AI Toolbox -- Configuration](/ai-toolbox/configuration/) for generating an API key.
+API keys are generated in the AI Toolbox admin — see its configuration guide.
 
 ## Key Design Decisions
 
