@@ -62,6 +62,7 @@ _CHANNEL_PARAM = OpenApiParameter(
 class DraftTranslateView(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminUser]
+    access_area = "contentdb_translator.translate"
 
     def create(self, request: Request, shop_idx: str, uid: str) -> Response:
         try:
@@ -114,6 +115,7 @@ class DraftTranslateView(viewsets.ViewSet):
 class BulkTranslateView(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminUser]
+    access_area = "contentdb_translator.translate"
 
     def create(self, request: Request, shop_idx: str) -> Response:
         try:
@@ -165,6 +167,7 @@ class BulkTranslateView(viewsets.ViewSet):
 class BulkJobViewSet(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminUser]
+    access_area = "contentdb_translator.translate"
 
     def list(self, request: Request, shop_idx: str) -> Response:
         status_filter = request.query_params.get("status")
