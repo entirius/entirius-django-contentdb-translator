@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from importlib.util import find_spec
+
 SECRET_KEY = "test-only-secret-key"
 
 DEBUG = True
@@ -21,6 +23,9 @@ INSTALLED_APPS = [
     "django_utils_translator",
     "django_contentdb_translator",
 ]
+# django_access when importable (zeno): tests/test_access_ownership.py proves the access declarations.
+if find_spec("django_access"):
+    INSTALLED_APPS.append("django_access")
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
