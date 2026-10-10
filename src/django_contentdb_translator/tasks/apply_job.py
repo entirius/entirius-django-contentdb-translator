@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 
 from celery import shared_task
+from django_utils.toolbox import ToolboxDisabledError
 from django_utils_translator.clients import ToolboxClient, ToolboxError
 
 from django_contentdb_translator.services.applicator import apply_author_translations, apply_page_translation
@@ -27,8 +28,16 @@ def poll_and_apply_content_job(
     force: bool = False,
     publish: bool = False,
 ) -> None:
-    """Poll toolbox job status, fetch results on completion, apply translations."""
-    with ToolboxClient(channel_idx, max_retries=1) as client:
+    """Poll toolbox job status, fetch results on completion, apply translations.
+
+    Returns without polling while the toolbox is switched off.
+    """
+    try:
+        client = ToolboxClient(channel_idx, max_retries=1)
+    except ToolboxDisabledError:
+        logger.warning("Translation job %s not polled: AI toolbox disabled", job_id)
+        return
+    with client:
         try:
             job = client.get_job(job_id)
         except ToolboxError as exc:

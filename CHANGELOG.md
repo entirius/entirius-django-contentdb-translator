@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Toolbox switched off (`AI_TOOLBOX_ENABLED = False`): the `poll_and_apply_content_job` task logs a warning and
+  returns without polling or raising; the API answers 503 `AI_TOOLBOX_DISABLED` (mapping in
+  entirius-django-utils-translator). A toolbox that is enabled but not configured raises as before.
 - Access: the module declares its own access areas on its AppConfig and its admin views (copied from the
   entirius-django-access defaults; behaviour unchanged).
 
