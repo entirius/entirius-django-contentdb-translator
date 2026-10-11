@@ -92,3 +92,5 @@ CMS → POST /drafts/{uid}/translate/ (or /bulk/translate/)
 - All translated text passes through `nh3.clean()` (via `django-utils-translator.sanitize`) before writing.
 - Celery task `poll_and_apply_content_job` polls every 30s with max 120 retries (1 hour timeout).
 - ContentSet membership is copied from source to translated draft.
+- `AI_TOOLBOX_ENABLED = False` (the switch of `entirius-django-utils`): the endpoints answer 503
+  `AI_TOOLBOX_DISABLED`; `poll_and_apply_content_job` logs a warning and returns without polling or raising.
