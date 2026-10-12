@@ -1,7 +1,21 @@
 [project]
 name = "entirius-django-contentdb-translator"
 version = "2.0.1"
-description = "ContentDB AI translation — clones drafts with translated content via AI toolbox"
+description = "AI translation of ContentDB pages, navigation and authors for Entirius, as new language drafts"
+keywords = ["django", "cms", "content", "translation", "ai", "localization", "ecommerce", "entirius"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business",
+]
 authors = [{ name = "Entirius" }]
 readme = "README.md"
 requires-python = ">=3.11"
@@ -15,8 +29,8 @@ dependencies = [
     "celery>=5.0",
     "entirius-django-contentdb>=5.0.0",
     "entirius-django-regional>=2.0.1",
-    "entirius-django-utils>=2.0.0",
-    "entirius-django-utils-translator>=2.0.0",
+    "entirius-django-utils>=2.3.0",
+    "entirius-django-utils-translator>=2.2.0",
 ]
 
 [project.optional-dependencies]
@@ -24,7 +38,11 @@ dev  = ["ruff", "pre-commit"]
 test = ["pytest", "pytest-django"]
 
 [project.urls]
+Homepage = "https://docs.entirius.com/"
+Documentation = "https://github.com/entirius/entirius-django-contentdb-translator/tree/develop/docs"
 Repository = "https://github.com/entirius/entirius-django-contentdb-translator"
+Changelog = "https://github.com/entirius/entirius-django-contentdb-translator/blob/develop/CHANGELOG.md"
+Issues = "https://github.com/entirius/entirius-django-contentdb-translator/issues"
 
 [build-system]
 requires = ["hatchling"]

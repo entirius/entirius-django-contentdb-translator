@@ -3,7 +3,7 @@ title: ContentDB Translator
 description: AI translation bridge for ContentDB — clones drafts with translated content via AI Toolbox.
 ---
 
-ContentDB AI translation bridge. Extracts translatable text from ContentDB JSON structures (tiles, meta, extensions, navigation, routes, authors), sends it to the remote `entirius-ai-toolbox` via HTTP, and creates new Drafts with translated content. Zero local Django models — the toolbox is the single source of truth for jobs, costs, and usage.
+ContentDB AI translation bridge. Extracts translatable text from ContentDB JSON structures (tiles, meta, extensions, navigation, routes, authors), sends it to the remote AI toolbox via HTTP, and creates new Drafts with translated content. One local Django model (`TranslationLink`) — the toolbox is the single source of truth for jobs, costs, and usage.
 
 **Tech:** Python >=3.11 · Django >=5.0 · DRF · Pydantic · Celery · django-contentdb · django-utils-translator
 
@@ -19,8 +19,11 @@ django-contentdb-translator
 ├── api/                    # DRF ViewSets + URL patterns
 ├── tasks/
 │   └── apply_job.py        # Celery: poll toolbox → apply on completion
+├── models/
+│   └── translation_link.py # TranslationLink (source draft → translated draft per language)
 └── management/commands/
-    └── translate_content.py  # CLI bulk translation
+    ├── translate_content.py            # CLI bulk translation
+    └── backfill_translation_links.py   # TranslationLink rows for existing translations
 ```
 
 Layer rule: `API → translator (orchestrator) → extractor/applicator → ContentDB models`.
@@ -39,6 +42,12 @@ CMS → POST /drafts/{uid}/translate/ (or /bulk/translate/)
   → Optionally auto-publish (create Published record)
 ```
 
+## Data Model
+
+One model: `TranslationLink` (`contentdb_translator_link` table) — maps `source_draft_id` →
+`translated_draft_id` per target language (integer IDs by design: zero coupling to ContentDB models).
+Job tracking lives in the AI toolbox. Content is stored via `django_contentdb` models.
+
 ## API
 
 All endpoints: JWT + `IsAdminUser`. Prefix: `/api/contentdb-translator/v2/admin/{shop_idx}/`
@@ -56,6 +65,7 @@ All POST endpoints accept `dry_run: true` for cost estimation without calling th
 
 | Parameter | Effect |
 |-----------|--------|
+| `dry_run` | Returns a cost estimate without calling the provider |
 | `force` | Overwrite existing draft in target language (default: skip) |
 | `publish` | Auto-publish the translated draft after creation |
 | `entity_type` | Bulk only: `page`, `navigation`, or `author` |
@@ -64,9 +74,22 @@ All POST endpoints accept `dry_run: true` for cost estimation without calling th
 
 | Type | What Gets Extracted | Apply Strategy |
 |------|-------------------|----------------|
-| `page` | Tile fields (title, description, buttons), Meta (SEO), Extension (blog header), Routes | Clone Draft with translated JSON |
+| `page` | Tile fields (title, description, buttons), Meta (SEO), Extension (blog header), Routes | Clone Draft with translated JSON; copy channels, authors, routes and ContentSet membership |
 | `navigation` | Nav items (label), columns (heading, caption, button_label, alt_text), links (label) | Clone Draft with translated navigation JSON |
 | `author` | t9n dicts (role, description, tag) | Update Author t9n fields in place |
+
+## Key Path Encoding
+
+Extractor encodes JSON paths as dot-separated keys for the applicator to reconstruct:
+
+```
+tile.<uuid>.title           → Content JSON tile field
+meta.title                  → Meta JSON SEO field
+ext.btn.<index>.label       → Extension JSON button
+nav.<item-id>.label         → Navigation item
+route.<route-id>.url        → Route URL slug
+author.<uid>.role           → Author t9n field
+```
 
 ## Configuration
 
@@ -82,11 +105,13 @@ AI_TOOLBOX_MAX_RETRIES = 3                        # optional (default: 3)
 
 `AI_TOOLBOX_BASE_URL` and `AI_TOOLBOX_API_KEY` are required — the module fails loud if either is missing.
 
+With `AI_TOOLBOX_ENABLED = False` the toolbox is switched off on purpose: every endpoint answers 503 `AI_TOOLBOX_DISABLED` and `poll_and_apply_content_job` logs a warning and returns without polling.
+
 API keys are generated in the AI Toolbox admin — see its configuration guide.
 
 ## Key Design Decisions
 
-- **Zero models** — no migrations, no local DB tables. All tracking lives in the AI toolbox.
+- **One model** — `TranslationLink` maps a source draft to its translated draft per language. Job tracking lives in the AI toolbox.
 - **Clone, not update** — each language version is a separate Draft. The applicator deep-copies source JSON and creates a new Content + Draft record.
 - **`force` flag** — when true, deletes existing target-language drafts for the same routes before creating new ones. Without force, existing translations are silently skipped.
 - **Route translation** — route URLs are translated alongside content. Translated drafts get new Route records with translated slugs.
@@ -94,15 +119,4 @@ API keys are generated in the AI Toolbox admin — see its configuration guide.
 - **Celery polling** — `poll_and_apply_content_job` checks the toolbox every 30s for job completion (max 120 retries = 1 hour).
 - **Author path** — authors use t9n JSON fields updated in place (`select_for_update()`), not Draft cloning.
 
-## Management Commands
-
-```bash
-# Bulk translate pages to Italian
-python manage.py translate_content --channel default-europe --target it --type page
-
-# Cost estimate only
-python manage.py translate_content --channel default-europe --target de --type page --estimate-only
-
-# Force overwrite + auto-publish
-python manage.py translate_content --channel default-europe --target fr --type navigation --force --publish
-```
+See [Management Commands](./commands/) for CLI bulk translation.
