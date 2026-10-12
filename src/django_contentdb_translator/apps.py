@@ -11,3 +11,10 @@ class DjangoContentdbTranslatorConfig(AppConfig):
     verbose_name = "ContentDB AI Translator"
     default_auto_field = "django.db.models.BigAutoField"
     is_volkanos = True
+    # Copied 1:1 from entirius-django-access cf538d2 catalogue defaults;
+    # the access defaults stay until this module's release.
+    access_areas = [
+        {"key": "contentdb_translator.translate", "label": "AI translation (content)", "sensitive": ("ai_cost",)},
+    ]
+    # Every admin view carries its access_area; no route needs a path rule.
+    access_route_rules = []
