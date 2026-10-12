@@ -560,8 +560,8 @@ requires-dist = [
     { name = "drf-spectacular", specifier = ">=0.27" },
     { name = "entirius-django-contentdb", specifier = ">=5.0.0" },
     { name = "entirius-django-regional", specifier = ">=2.0.1" },
-    { name = "entirius-django-utils", specifier = ">=2.0.0" },
-    { name = "entirius-django-utils-translator", specifier = ">=2.0.0" },
+    { name = "entirius-django-utils", specifier = ">=2.3.0" },
+    { name = "entirius-django-utils-translator", specifier = ">=2.2.0" },
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pydantic", specifier = ">=2.0" },
     { name = "pytest", marker = "extra == 'test'" },
@@ -626,7 +626,7 @@ wheels = [
 
 [[package]]
 name = "entirius-django-utils"
-version = "2.0.0"
+version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -638,31 +638,33 @@ dependencies = [
     { name = "entirius-django-regional" },
     { name = "entirius-py-idx-normalizator" },
     { name = "entirius-py-process-logger" },
+    { name = "httpx" },
     { name = "marshmallow" },
     { name = "pydantic" },
     { name = "python-slugify" },
     { name = "webargs" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b3/ba/797d985ba1f80e1ff57ac1c1a13e24c6552215a4742f341d46d5e9143498/entirius_django_utils-2.0.0.tar.gz", hash = "sha256:6fc5171d9cd17455d93453cba667d13f6b1ca0c20b030c8043bfc43365e21517", size = 65938, upload-time = "2026-07-06T16:04:38.031Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/25/3418958d318b6fa0a428c49a5832c4b21ae76ed2359953718e7f3fffb8d6/entirius_django_utils-2.3.0.tar.gz", hash = "sha256:26d9ca1ef953d79363cf1902096a73cfe40d1eb64c38a168e99c7f5f32d7347e", size = 91188, upload-time = "2026-10-12T08:41:50.256Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/d3/457beba27bde2789f2400eb75e1288e64ccf8612681357663a7dabea40b4/entirius_django_utils-2.0.0-py3-none-any.whl", hash = "sha256:730eb5ec42275d3da8a378f6e4a5631c48c587b2c6affe0acd4036c499d34971", size = 27482, upload-time = "2026-07-06T16:04:37.211Z" },
+    { url = "https://files.pythonhosted.org/packages/42/8b/a24d6378e123100cded79a0334d0f8ea9c25d908e14e9274969575bd7c41/entirius_django_utils-2.3.0-py3-none-any.whl", hash = "sha256:75a00071b7aa04bab02e5cf225ce8d52b3ac61d614542f0b9873c3bfed36288e", size = 42073, upload-time = "2026-10-12T08:41:49.298Z" },
 ]
 
 [[package]]
 name = "entirius-django-utils-translator"
-version = "2.0.0"
+version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "djangorestframework" },
+    { name = "entirius-django-utils" },
     { name = "httpx" },
     { name = "nh3" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c8/1a/d14c23aa0a1a9a772eed3dfc920f1aa07ead8a86e688dea573324c404fbb/entirius_django_utils_translator-2.0.0.tar.gz", hash = "sha256:bacabbd4b10d3f13b3e8f9c320fe6b605e155ec5753ee8c3c5f3da57cd83c490", size = 48599, upload-time = "2026-07-10T16:17:43.425Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/21/fcd0bde0ffdf4ac067644f3dccacf4dbfb5eb8a3a2c11353157cc069760f/entirius_django_utils_translator-2.2.0.tar.gz", hash = "sha256:7ed4f1edc19cbb1d83695756fb545a11284044374dde1387886ce9eb3ef334f8", size = 72733, upload-time = "2026-10-12T08:55:23.078Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/bb/fe3d692498cbbb275fb0519a6683ae024f31cdfcde0a2c114659d9d7d2e4/entirius_django_utils_translator-2.0.0-py3-none-any.whl", hash = "sha256:f7412e7331f785d3922e48bc8b206c0e44df85a6377631fc74242d1fc5741c19", size = 16982, upload-time = "2026-07-10T16:17:42.539Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/57/9ad772575ec1f01d32894f587076a7746f88ed1e5237ca9c02e658f0b8c2/entirius_django_utils_translator-2.2.0-py3-none-any.whl", hash = "sha256:9a09b97587a7c1b6ca2c00328dca28f1d9fbbce9fbc0a4157ddc63d1f2ad212d", size = 17640, upload-time = "2026-10-12T08:55:22.055Z" },
 ]
 
 [[package]]

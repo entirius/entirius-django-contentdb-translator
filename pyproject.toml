@@ -29,8 +29,8 @@ dependencies = [
     "celery>=5.0",
     "entirius-django-contentdb>=5.0.0",
     "entirius-django-regional>=2.0.1",
-    "entirius-django-utils>=2.0.0",
-    "entirius-django-utils-translator>=2.0.0",
+    "entirius-django-utils>=2.3.0",
+    "entirius-django-utils-translator>=2.2.0",
 ]
 
 [project.optional-dependencies]
