@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 2.1.0 — 2026-10-12
 
 - Toolbox switched off (`AI_TOOLBOX_ENABLED = False`): the `poll_and_apply_content_job` task logs a warning and
   returns without polling or raising; the API answers 503 `AI_TOOLBOX_DISABLED` (mapping in
