@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Toolbox calls use the instance channel (`ToolboxClient()`, `AI_TOOLBOX_CHANNEL`) instead of the sales channel
+  from the URL. Jobs keep the sales channel in `metadata.channel_idx`; `bulk/jobs/` lists only that channel's
+  jobs and another channel's job detail answers 404. `AI_TOOLBOX_CHANNEL` is now required.
+
 ## 2.1.0 — 2026-10-12
 
 - Toolbox switched off (`AI_TOOLBOX_ENABLED = False`): the `poll_and_apply_content_job` task logs a warning and

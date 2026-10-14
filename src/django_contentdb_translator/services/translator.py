@@ -107,7 +107,6 @@ def translate_draft(
 
     if dry_run:
         return _estimate_single_draft(
-            channel_idx,
             draft,
             items,
             total_chars,
@@ -166,7 +165,6 @@ def _prepare_draft(draft_uid: str) -> tuple:
 
 
 def _estimate_single_draft(
-    channel_idx,
     draft,
     items,
     total_chars,
@@ -177,7 +175,7 @@ def _estimate_single_draft(
 ) -> TranslateDraftResponse:
     """Dry-run estimate for a single draft."""
     mapped_targets = [map_to_provider_code(lang) for lang in target_languages]
-    with ToolboxClient(channel_idx) as client:
+    with ToolboxClient() as client:
         estimate = client.estimate(items=items, target_languages=mapped_targets, provider=provider)
     per_language = _build_per_language_estimates(estimate, target_languages, len(items), total_chars)
     return TranslateDraftResponse(
@@ -217,7 +215,7 @@ def _dispatch_single_draft(
     mapped_source = map_to_provider_code(source_lang)
     job_ids = []
 
-    with ToolboxClient(channel_idx) as client:
+    with ToolboxClient() as client:
         for target_lang in target_languages:
             mapped_target = map_to_provider_code(target_lang)
             job = client.create_job(
@@ -384,7 +382,7 @@ def _translate_drafts_bulk(
     mapped_source = map_to_provider_code(source_lang)
 
     if dry_run:
-        return _estimate_drafts_bulk(channel_idx, entity_type, target_languages, draft_items, provider, force)
+        return _estimate_drafts_bulk(entity_type, target_languages, draft_items, provider, force)
 
     return _create_draft_jobs_bulk(
         channel_idx,
@@ -400,7 +398,7 @@ def _translate_drafts_bulk(
     )
 
 
-def _estimate_drafts_bulk(channel_idx, entity_type, target_languages, draft_items, provider, force):
+def _estimate_drafts_bulk(entity_type, target_languages, draft_items, provider, force):
     """Estimate cost for bulk draft translation.
 
     When force=False, filters out drafts that already have translations in target languages.
@@ -445,7 +443,7 @@ def _estimate_drafts_bulk(channel_idx, entity_type, target_languages, draft_item
     total_chars = sum(len(item["text"]) for item in all_items)
     mapped_targets = [map_to_provider_code(lang) for lang in target_languages]
 
-    with ToolboxClient(channel_idx) as client:
+    with ToolboxClient() as client:
         estimate = client.estimate(items=all_items, target_languages=mapped_targets, provider=provider)
 
     per_language = _build_per_language_estimates(estimate, target_languages, len(all_items), total_chars)
@@ -480,7 +478,7 @@ def _create_draft_jobs_bulk(
     total_cost = Decimal("0")
     total_items = 0
 
-    with ToolboxClient(channel_idx) as client:
+    with ToolboxClient() as client:
         for draft, items, route_data in filtered_draft_items:
             for target_lang in target_languages:
                 mapped_target = map_to_provider_code(target_lang)
@@ -564,7 +562,7 @@ def _translate_authors_bulk(channel_idx, target_languages, source_lang, provider
     mapped_targets = [map_to_provider_code(lang) for lang in target_languages]
     total_chars = sum(len(item["text"]) for item in items)
 
-    with ToolboxClient(channel_idx) as client:
+    with ToolboxClient() as client:
         if dry_run:
             estimate = client.estimate(items=items, target_languages=mapped_targets, provider=provider)
             per_language = _build_per_language_estimates(estimate, target_languages, len(items), total_chars)
