@@ -1,6 +1,6 @@
 [project]
 name = "entirius-django-contentdb-translator"
-version = "2.1.0"
+version = "2.1.1rc1"
 description = "AI translation of ContentDB pages, navigation and authors for Entirius, as new language drafts"
 keywords = ["django", "cms", "content", "translation", "ai", "localization", "ecommerce", "entirius"]
 classifiers = [
