@@ -23,6 +23,7 @@ DISABLED = (503, "AI_TOOLBOX_DISABLED")
 def configured(settings):
     settings.AI_TOOLBOX_BASE_URL = "https://toolbox.test.internal"
     settings.AI_TOOLBOX_API_KEY = "dummy"
+    settings.AI_TOOLBOX_CHANNEL = "test-instance"
     return settings
 
 

@@ -38,7 +38,8 @@ src/django_contentdb_translator/
 ├── services/
 │   ├── extractor.py          # Walk JSON → flat [{key, text}] items
 │   ├── applicator.py         # Deep-copy + translate JSON → new Content → new Draft
-│   └── translator.py         # Orchestrator: extract → toolbox → apply
+│   ├── translator.py         # Orchestrator: extract → toolbox → apply
+│   └── jobs.py               # Job list/detail proxy, scoped to the sales channel by job metadata
 ├── schemas/
 │   ├── requests.py           # TranslateDraftRequest, BulkTranslateRequest (extend BaseTranslateRequest)
 │   └── responses.py          # TranslateDraftResponse, ContentBulkEstimateResponse, DraftBreakdown
@@ -84,6 +85,13 @@ CMS → POST /drafts/{uid}/translate/ (or /bulk/translate/)
 
 ## Gotchas
 
+- Every toolbox call uses the instance channel — `ToolboxClient()` (`AI_TOOLBOX_CHANNEL`), never the URL's
+  `shop_idx`. The sales channel travels in job `metadata.channel_idx`; `poll_and_apply_content_job` gets it as an
+  argument.
+- `bulk/jobs/` filters the toolbox page by `metadata.channel_idx` — no `count`; `next`/`previous` are toolbox
+  page cursors, so a page can come back short or empty. Another channel's job detail answers 404. Jobs created
+  before the switch (on the sales-channel toolbox channel) are not listed; their poll task gets a toolbox 404
+  and gives up without retrying.
 - Applicator **clones** Drafts rather than updating in place. Each language is a separate Draft — that is how ContentDB stores multilingual content.
 - `force=True` deletes existing target-language drafts for the same routes before creating new ones. Without `force`, existing translations are skipped.
 - Route URLs are translated too — the translated draft gets new Route records with translated slugs.

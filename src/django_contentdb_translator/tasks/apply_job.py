@@ -10,7 +10,7 @@ import logging
 
 from celery import shared_task
 from django_utils.toolbox import ToolboxDisabledError
-from django_utils_translator.clients import ToolboxClient, ToolboxError
+from django_utils_translator.clients import ToolboxClient, ToolboxError, ToolboxNotFoundError
 
 from django_contentdb_translator.services.applicator import apply_author_translations, apply_page_translation
 
@@ -33,13 +33,16 @@ def poll_and_apply_content_job(
     Returns without polling while the toolbox is switched off.
     """
     try:
-        client = ToolboxClient(channel_idx, max_retries=1)
+        client = ToolboxClient(max_retries=1)
     except ToolboxDisabledError:
         logger.warning("Translation job %s not polled: AI toolbox disabled", job_id)
         return
     with client:
         try:
             job = client.get_job(job_id)
+        except ToolboxNotFoundError:
+            logger.error("Job %s not found on the instance channel (created before the switch?) — giving up", job_id)
+            return
         except ToolboxError as exc:
             logger.error("Failed to poll content job %s: %s", job_id, exc.message)
             raise self.retry(exc=exc)

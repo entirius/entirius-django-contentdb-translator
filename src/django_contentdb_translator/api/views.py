@@ -4,7 +4,8 @@
 
 """DRF views for django-contentdb-translator.
 
-Auth: JWT + IsAdminUser. Outbound calls to toolbox via ToolboxClient.
+Auth: JWT + IsAdminUser. Outbound calls to toolbox via ToolboxClient, always on the instance channel
+(AI_TOOLBOX_CHANNEL).
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ import uuid
 
 from django.core.exceptions import ObjectDoesNotExist
 from django_utils.api.v2_errors import raise_pydantic_as_drf
-from django_utils_translator.clients import ToolboxClient, ToolboxError
+from django_utils_translator.clients import ToolboxError
 from django_utils_translator.views import handle_toolbox_error
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from pydantic import ValidationError
@@ -25,7 +26,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from django_contentdb_translator.schemas.requests import BulkTranslateRequest, TranslateDraftRequest
-from django_contentdb_translator.services import translator
+from django_contentdb_translator.services import jobs, translator
 
 logger = logging.getLogger("process")
 
@@ -154,12 +155,15 @@ class BulkTranslateView(viewsets.ViewSet):
     list=extend_schema(
         tags=["Content Translation Jobs"],
         summary="List translation jobs",
+        description="Jobs of this sales channel (proxied from toolbox, filtered by job metadata). "
+        "No count; next/previous are toolbox page cursors (a page may hold fewer jobs, even none).",
         parameters=[_CHANNEL_PARAM],
         responses={200: {"description": "Job list from toolbox"}},
     ),
     retrieve=extend_schema(
         tags=["Content Translation Jobs"],
         summary="Get job detail",
+        description="Job detail (proxied from toolbox). Another channel's job answers 404.",
         parameters=[_CHANNEL_PARAM],
         responses={200: {"description": "Job detail"}, 404: {"description": "Not found"}},
     ),
@@ -178,16 +182,14 @@ class BulkJobViewSet(viewsets.ViewSet):
                 {"error": "VALIDATION_ERROR", "message": "page must be an integer."}, status=status.HTTP_400_BAD_REQUEST
             )
         try:
-            with ToolboxClient(shop_idx) as client:
-                result = client.list_jobs(status=status_filter, page=page)
+            result = jobs.list_jobs(shop_idx, status=status_filter, page=page)
         except ToolboxError as exc:
             return handle_toolbox_error(exc)
         return Response(result, status=status.HTTP_200_OK)
 
     def retrieve(self, request: Request, shop_idx: str, pk: str | None = None) -> Response:
         try:
-            with ToolboxClient(shop_idx) as client:
-                result = client.get_job(pk)
+            result = jobs.get_job(shop_idx, pk)
         except ToolboxError as exc:
             return handle_toolbox_error(exc)
         return Response(result, status=status.HTTP_200_OK)

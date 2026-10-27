@@ -16,6 +16,7 @@ MODULES = [
     "django_contentdb_translator.services.extractor",
     "django_contentdb_translator.services.applicator",
     "django_contentdb_translator.services.translator",
+    "django_contentdb_translator.services.jobs",
     "django_contentdb_translator.schemas.requests",
     "django_contentdb_translator.schemas.responses",
     "django_contentdb_translator.tasks.apply_job",

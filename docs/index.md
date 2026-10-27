@@ -33,10 +33,10 @@ Layer rule: `API → translator (orchestrator) → extractor/applicator → Cont
 ```
 CMS → POST /drafts/{uid}/translate/ (or /bulk/translate/)
   → extractor: walk Content JSON, Meta, Extension, Navigation, Routes
-  → ToolboxClient: POST /api/ai-translator/v2/admin/{channel_idx}/estimate/
-  → (if not estimate-only) ToolboxClient: POST /api/ai-translator/v2/admin/{channel_idx}/jobs/
-  → Celery poll: GET /api/ai-translator/v2/admin/{channel_idx}/jobs/{id}/
-  → On completion: GET /api/ai-translator/v2/admin/{channel_idx}/jobs/{id}/results/
+  → ToolboxClient: POST /api/ai-translator/v2/admin/{AI_TOOLBOX_CHANNEL}/estimate/
+  → (if not estimate-only) ToolboxClient: POST /api/ai-translator/v2/admin/{AI_TOOLBOX_CHANNEL}/jobs/
+  → Celery poll: GET /api/ai-translator/v2/admin/{AI_TOOLBOX_CHANNEL}/jobs/{id}/
+  → On completion: GET /api/ai-translator/v2/admin/{AI_TOOLBOX_CHANNEL}/jobs/{id}/results/
   → applicator: deep-copy JSON → new Content → new Draft
   → Copy channels, authors, routes, ContentSet membership
   → Optionally auto-publish (create Published record)
@@ -56,8 +56,8 @@ All endpoints: JWT + `IsAdminUser`. Prefix: `/api/contentdb-translator/v2/admin/
 |--------|------|---------|
 | POST | `drafts/{uid}/translate/` | Translate single draft |
 | POST | `bulk/translate/` | Bulk translate by entity type (page/navigation/author) |
-| GET | `bulk/jobs/` | List jobs (proxied from toolbox) |
-| GET | `bulk/jobs/{pk}/` | Job status (proxied from toolbox) |
+| GET | `bulk/jobs/` | List this sales channel's jobs (proxied from toolbox, filtered by `metadata.channel_idx`) |
+| GET | `bulk/jobs/{pk}/` | Job status (proxied from toolbox; 404 for another channel's job) |
 
 All POST endpoints accept `dry_run: true` for cost estimation without calling the provider.
 
@@ -99,6 +99,7 @@ ContentDB Translator uses the shared toolbox settings from `django-utils-transla
 # settings_local.py
 AI_TOOLBOX_BASE_URL = "http://ai-toolbox:8001"   # required
 AI_TOOLBOX_API_KEY = "ent_prod_..."               # required
+AI_TOOLBOX_CHANNEL = "my-instance"                 # required, the instance channel on the toolbox
 AI_TOOLBOX_TIMEOUT = 60                           # optional (default: 60)
 AI_TOOLBOX_MAX_RETRIES = 3                        # optional (default: 3)
 ```
